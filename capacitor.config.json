@@ -1,0 +1,12 @@
+{
+  "appId": "com.micheleagostini.fuelexpenses",
+  "appName": "Fuel Tracker",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "launchShowDuration": 2000
+    }
+  }
+}
