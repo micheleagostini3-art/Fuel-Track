@@ -1,0 +1,20 @@
+{
+  "name": "fuel-expense-tracker",
+  "version": "1.0.0",
+  "description": "App per tracciare spese carburante e service",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Building web app'",
+    "android": "cap add android && cap sync android",
+    "sync": "cap sync"
+  },
+  "dependencies": {
+    "@capacitor/core": "latest",
+    "@capacitor/filesystem": "latest",
+    "@capacitor/share": "latest"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest",
+    "@capacitor/android": "latest"
+  }
+}
