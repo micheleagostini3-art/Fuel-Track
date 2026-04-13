@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Spese Auto - Tracker Carburante</title>
+    <link rel="icon" href="assets/icon-192.png">
+    <meta name="theme-color" content="#667eea">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 0;
+            color-scheme: light;
+        }
+
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0;
+        }
+
+        .form-section {
+            padding: 15px;
+            background: white;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: inherit;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: white;
+            transition: border-color 0.2s;
+        }
+
+        .form-group select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 18px;
+            padding-right: 30px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+            font-size: 0.95em;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .button-group.full {
+            grid-template-columns: 1fr;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 0.95em;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-user-select: none;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-save:active {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        .btn-clear {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-clear:active {
+            background: #e0e0e0;
+        }
+
+        .btn-export {
+            background: #4caf50;
+            color: white;
+            grid-column: 1 / -1;
+            margin-top: 5px;
+        }
+
+        .btn-export:active {
+            opacity: 0.9;
+        }
+
+        #notification {
+            display: none;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            animation: slideIn 0.3s ease;
+        }
+
+        #notification.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        #notification.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        #notification.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .table-section {
+            padding: 15px;
+            background: #f9f9f9;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 10px;
+        }
+
+        .table-section h2 {
+            color: #333;
+            margin-bottom: 12px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.75em;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+
+        thead {
+            background: #f5f5f5;
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #666;
+        }
+
+        tbody tr {
+            background: white;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .type-benzina {
+            background: #ffe5cc;
+            color: #8b4513;
+        }
+
+        .type-diesel {
+            background: #cce5ff;
+            color: #003d99;
+        }
+
+        .type-metano {
+            background: #e5ccff;
+            color: #6b0099;
+        }
+
+        .type-service {
+            background: #ffcccc;
+            color: #990000;
+        }
+
+        .action-cell {
+            text-align: center;
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+            padding: 6px 10px;
+            font-size: 0.75em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:active {
+            background: #ff5252;
+            transform: scale(0.95);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 30px 15px;
+            color: #999;
+            font-style: italic;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @supports(padding: max(0px)) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⛽ Spese Auto</h1>
+            <p>Carburante & Service</p>
+        </div>
+
+        <div class="content">
+            <!-- FORM SECTION -->
+            <div class="form-section">
+                <h2>Registra spesa</h2>
+                
+                <div id="notification"></div>
+
+                <form id="expenseForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="date">📅 Data</label>
+                            <input type="date" id="date" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="type">📋 Tipo</label>
+                            <select id="type" required onchange="updateTypeFields()">
+                                <option value="">Seleziona...</option>
+                                <option value="Benzina">⛽ Benzina</option>
+                                <option value="Diesel">⛽ Diesel</option>
+                                <option value="Metano">⛽ Metano</option>
+                                <option value="Service">🔧 Service</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="kmGroup">
+                            <label for="km">🛣️ Km</label>
+                            <input type="number" id="km" placeholder="Numero km" step="1">
+                        </div>
+
+                        <div class="form-group" id="priceGroup">
+                            <label for="price">💰 Prezzo/L</label>
+                            <input type="number" id="price" placeholder="0.00" step="0.01">
+                        </div>
+
+                        <div class="form-group" id="amountGroup">
+                            <label for="amount">💸 Spesa (€)</label>
+                            <input type="number" id="amount" placeholder="0.00" step="0.01" required>
+                        </div>
+
+                        <div class="form-group" id="descriptionGroup" style="display: none;">
+                            <label for="description">📝 Descrizione</label>
+                            <input type="text" id="description" placeholder="Es: Cambio olio">
+                        </div>
+
+                        <div class="form-group full">
+                            <label for="notes">📝 Note</label>
+                            <textarea id="notes" placeholder="Note aggiuntive..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="button-group full">
+                        <button type="submit" class="btn-save">💾 Salva</button>
+                        <button type="reset" class="btn-clear">🔄 Cancella</button>
+                    </div>
+
+                    <button type="button" class="btn-export" onclick="shareOrDownloadTxt()">📥 Scarica TXT</button>
+                </form>
+            </div>
+
+            <!-- TABLE SECTION -->
+            <div class="table-section">
+                <h2>Storico</h2>
+                
+                <div id="statsContainer" class="stats" style="display: none;">
+                    <div class="stat-box">
+                        <div class="stat-label">💸 Totale Spese</div>
+                        <div class="stat-value" id="totalExpenses">€0.00</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">⛽ Rifornimenti</div>
+                        <div class="stat-value" id="totalRefills">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">🔧 Service</div>
+                        <div class="stat-value" id="totalService">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">🛣️ Km Totali</div>
+                        <div class="stat-value" id="totalKm">0</div>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="expenseTable">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Km</th>
+                                <th>€</th>
+                                <th>Note</th>
+                                <th>Azione</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr class="empty-message">
+                                <td colspan="6">Nessuna spesa registrata</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://capacitorjs.web.app/capacitor.js"></script>
+    <script>
+        const { Filesystem, Directory, Encoding } = Capacitor.Plugins;
+
+        document.getElementById('date').valueAsDate = new Date();
+
+        function updateTypeFields() {
+            const type = document.getElementById('type').value;
+            const kmGroup = document.getElementById('kmGroup');
+            const priceGroup = document.getElementById('priceGroup');
+            const descriptionGroup = document.getElementById('descriptionGroup');
+
+            if (type === 'Service') {
+                kmGroup.style.display = 'none';
+                priceGroup.style.display = 'none';
+                descriptionGroup.style.display = 'block';
+                document.getElementById('km').required = false;
+                document.getElementById('price').required = false;
+            } else if (type) {
+                kmGroup.style.display = 'block';
+                priceGroup.style.display = 'block';
+                descriptionGroup.style.display = 'none';
+                document.getElementById('km').required = true;
+                document.getElementById('price').required = true;
+            }
+        }
+
+        function loadExpenses() {
+            const stored = localStorage.getItem('fuelExpenses');
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function saveExpenses(expenses) {
+            localStorage.setItem('fuelExpenses', JSON.stringify(expenses));
+            saveTxtFile(expenses);
+        }
+
+        async function saveTxtFile(expenses) {
+            try {
+                const txtContent = generateTxtContent(expenses);
+                await Filesystem.writeFile({
+                    path: 'spese-auto.txt',
+                    data: txtContent,
+                    directory: Directory.Documents,
+                    encoding: Encoding.UTF8,
+                });
+                showNotification('Dati salvati in Documents/spese-auto.txt', 'info');
+            } catch (error) {
+                console.log('Salvataggio file non disponibile (normale su web)', error);
+            }
+        }
+
+        function generateTxtContent(expenses) {
+            let txtContent = 'REGISTRATORE SPESE AUTO\n';
+            txtContent += '='.repeat(80) + '\n';
+            txtContent += `Data aggiornamento: ${new Date().toLocaleString('it-IT')}\n`;
+            txtContent += '='.repeat(80) + '\n\n';
+
+            const fuels = expenses.filter(e => ['Benzina', 'Diesel', 'Metano'].includes(e.type));
+            if (fuels.length > 0) {
+                txtContent += 'RIFORNIMENTI CARBURANTE:\n';
+                txtContent += '-'.repeat(80) + '\n';
+                fuels.forEach((exp, index) => {
+                    txtContent += `\n[${index + 1}] ${exp.type}\n`;
+                    txtContent += `Data: ${new Date(exp.date).toLocaleDateString('it-IT')}\n`;
+                    txtContent += `Km: ${exp.km}\n`;
+                    txtContent += `Prezzo al litro: €${parseFloat(exp.price).toFixed(2)}\n`;
+                    txtContent += `Spesa: €${parseFloat(exp.amount).toFixed(2)}\n`;
+                    if (exp.notes) txtContent += `Note: ${exp.notes}\n`;
+                });
+                txtContent += '\n';
+            }
+
+            const services = expenses.filter(e => e.type === 'Service');
+            if (services.length > 0) {
+                txtContent += '\nSERVICE MANUTENZIONE:\n';
+                txtContent += '-'.repeat(80) + '\n';
+                services.forEach((exp, index) => {
+                    txtContent += `\n[${index + 1}] Service\n`;
+                    txtContent += `Data: ${new Date(exp.date).toLocaleDateString('it-IT')}\n`;
+                    if (exp.description) txtContent += `Descrizione: ${exp.description}\n`;
+                    txtContent += `Spesa: €${parseFloat(exp.amount).toFixed(2)}\n`;
+                    if (exp.notes) txtContent += `Note: ${exp.notes}\n`;
+                });
+                txtContent += '\n';
+            }
+
+            txtContent += '\n' + '='.repeat(80) + '\n';
+            txtContent += 'RIEPILOGO:\n';
+            txtContent += '-'.repeat(80) + '\n';
+
+            const totalExpenses = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+            const totalKm = expenses.reduce((sum, exp) => sum + (parseInt(exp.km) || 0), 0);
+            const fuelExpenses = fuels.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+            const serviceExpenses = services.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+
+            txtContent += `Totale Spese: €${totalExpenses.toFixed(2)}\n`;
+            txtContent += `  - Carburante: €${fuelExpenses.toFixed(2)} (${fuels.length} rifornimenti)\n`;
+            txtContent += `  - Service: €${serviceExpenses.toFixed(2)} (${services.length} interventi)\n`;
+            txtContent += `Km Totali: ${totalKm}\n`;
+
+            return txtContent;
+        }
+
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notification');
+            container.className = `notification ${type}`;
+            container.textContent = message;
+            container.style.display = 'block';
+            
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 3000);
+        }
+
+        function updateTable() {
+            const expenses = loadExpenses();
+            const tbody = document.getElementById('tableBody');
+            const statsContainer = document.getElementById('statsContainer');
+            
+            if (expenses.length === 0) {
+                tbody.innerHTML = '<tr class="empty-message"><td colspan="6">Nessuna spesa registrata</td></tr>';
+                statsContainer.style.display = 'none';
+                return;
+            }
+
+            statsContainer.style.display = 'grid';
+            
+            tbody.innerHTML = expenses.map((exp, index) => {
+                const noteText = exp.description ? `${exp.description}${exp.notes ? ' - ' + exp.notes : ''}` : (exp.notes || '-');
+                const typeClass = `type-badge type-${exp.type.toLowerCase()}`;
+                return `
+                    <tr>
+                        <td>${new Date(exp.date).toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit'})}</td>
+                        <td><span class="${typeClass}">${exp.type}</span></td>
+                        <td>${exp.km || '-'}</td>
+                        <td><strong>€${parseFloat(exp.amount).toFixed(2)}</strong></td>
+                        <td style="font-size: 0.8em; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${noteText}</td>
+                        <td class="action-cell">
+                            <button class="btn-delete" onclick="deleteExpense(${index})">✕</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const expenses = loadExpenses();
+            const totalExpenses = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+            const totalKm = expenses.reduce((sum, exp) => sum + (parseInt(exp.km) || 0), 0);
+            const refills = expenses.filter(e => ['Benzina', 'Diesel', 'Metano'].includes(e.type)).length;
+            const services = expenses.filter(e => e.type === 'Service').length;
+
+            document.getElementById('totalExpenses').textContent = `€${totalExpenses.toFixed(2)}`;
+            document.getElementById('totalRefills').textContent = refills;
+            document.getElementById('totalService').textContent = services;
+            document.getElementById('totalKm').textContent = totalKm.toLocaleString('it-IT');
+        }
+
+        function deleteExpense(index) {
+            const expenses = loadExpenses();
+            const exp = expenses[index];
+            
+            if (confirm(`Eliminare ${exp.type} del ${new Date(exp.date).toLocaleDateString('it-IT')}?`)) {
+                expenses.splice(index, 1);
+                saveExpenses(expenses);
+                updateTable();
+                showNotification('Spesa eliminata!', 'success');
+            }
+        }
+
+        async function shareOrDownloadTxt() {
+            const expenses = loadExpenses();
+            
+            if (expenses.length === 0) {
+                showNotification('Nessuna spesa da esportare!', 'warning');
+                return;
+            }
+
+            const txtContent = generateTxtContent(expenses);
+            const blob = new Blob([txtContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `spese-auto-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            showNotification('File scaricato!', 'success');
+        }
+
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const newExpense = {
+                date: document.getElementById('date').value,
+                type: document.getElementById('type').value,
+                km: document.getElementById('km').value || null,
+                price: document.getElementById('price').value || null,
+                amount: document.getElementById('amount').value,
+                description: document.getElementById('description').value || null,
+                notes: document.getElementById('notes').value
+            };
+
+            const expenses = loadExpenses();
+            expenses.push(newExpense);
+            saveExpenses(expenses);
+
+            updateTable();
+            this.reset();
+            document.getElementById('date').valueAsDate = new Date();
+            updateTypeFields();
+            showNotification('Spesa registrata!', 'success');
+        });
+
+        updateTable();
+    </script>
+</body>
+</html>
