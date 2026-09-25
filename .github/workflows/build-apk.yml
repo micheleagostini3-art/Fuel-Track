@@ -33,15 +33,16 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          cmdline-tools-version: 12266719
+          cmdline-tools-version: 11.0
 
       - name: Install Android SDK packages
         run: |
-          sdkmanager --licenses < /dev/null || true
+          yes | sdkmanager --licenses || true
           sdkmanager \
             "platform-tools" \
             "platforms;android-35" \
-            "build-tools;35.0.0"
+            "build-tools;35.0.0" \
+            "cmdline-tools;latest"
 
       - name: Install dependencies
         run: npm install
